@@ -1,0 +1,48 @@
+Shiny dashboard
+
+header = dashboardHeader()
+sidebar = dashboardSidebar()
+body = dashboardBody()
+
+ui = dashboard(header, sidebar, body)
+
+3 types of menus for header
+Message
+Notification
+Task
+
+dropdownMenu(
+	type = "messages",
+	messageItem(
+		from = "",
+		message = "",
+		href = ""),
+	type = "notifications",
+	notificationItem(
+		text="",
+		href = ""),
+	type = "tasks",
+	taskItem(
+		text="",
+		value=##)
+		)
+
+#############
+#############
+#############
+dashboardSidebar(
+sidebarMenu(
+menuItem("Data", tabName = "data"),
+menuItem("Dash", tabName = "dash"),
+		)
+			)
+tabName links to the dashboardBody()
+
+dashboardBody(
+tabBox(title='my tab box',
+tabItems(
+tabItem(tabName="data","inpt data here"),
+tabItem(tabName="dash","dash input here")
+	)
+	)	
+		)

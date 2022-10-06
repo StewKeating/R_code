@@ -1,0 +1,268 @@
+####
+###
+Base R
+
+levels(col) - tells you what the categorical values in in a col
+
+table(DF$col, DF$col2) creates a contingency table
+
+prop.table(table) - proportional table
+prop.table(table,1) - conditional table by rows
+prop.table(table,2) - conditional table by col
+
+
+
+to use droplevels() need to filter() out all rows from a level first.  droplevels only works on empty levels#
+
+  theme(axis.text.x = element_text(angle = 90)) ' row to rotate the text of x axis 
+DF%Col <- factor(DF$Col, levels = c("Bad", "Neural", "Good")) - re-order factor levels
+
+
+###
+###
+joining dataframes
+
+printDF1 %>%
+inner_join(DF2, by = c("col1" = "col2"), suffix = c("_DF1","_DF2"))
+
+one to many
+DF1%>%
+	inner_join(DF2, by = "set_num")
+	filter(version==1)
+
+
+joining more than 2 tables together
+do mutliple inner_joins
+inner_join(DF2, by = c("col1" = "col2"), suffix = c("_DF1","_DF2"))
+inner_join(DF3, by = c("col1" = "col2"), suffix = c("_DF1","_DF3"))
+
+n() #gets the number of rows?
+
+left_join - keeps all observations from DF1 tables, N/As
+left_join(DF2, by = c("col1","col2"))
+
+right_join - keeps all observations from DF2 tables, N/As
+
+replace_na(list(col1=0, col2= 0))
+
+full_join - all obs from both DFs
+
+semi_join - like inner join but only keeps row in table 2.  Only DF1 remains
+
+anti_join - like inner join but only keeps rows not in table 2.  Only DF1 remains
+
+bind_rows(DF1, DF2) - one table on top of another
+
+###
+###
+
+data_vis
+
+str(DF) - quick look at the data in the console
+
+when plotting cateogircal on the x axis, try using aes(factor(thing you want to plot), y=)
+
+geom_smooth - adds curvy line of best fit
+
+All shape values are described on the points() help page
+
+label & shape must be categorical
+
+rownames(cat) gets the row labels in a category
+
+geom_*(position = '')
+
+position can = jitter dodge
+
+posn_j<-position_jitter(0.1,seed=XX) - if you want to set your own jitter value
+
+###
+###
+probability stuff
+set.seed(#)
+DF%>%
+   sample_n(No_of_Rows, replace=TRUE)
+
+sample(vector, #, replace=TRUE) # sample as sample_n but takes a vector
+replicate(##, sample(vector,#,replace=TRUE) %>% mean()) # gets ## samples and calcs the mean 
+
+#uniform dist
+punif(7,min=, max=) ##uniform probability
+punif(7,min=, max=, lower.tail=False)
+wait between 2 unifrom dist punif(upperNO,min=, max=) - punif(lowerNO,min=, max=)
+runif(#trials, min, max)
+
+#binom dist
+rbinom(#trials, #coins, #proabability of success)
+dbinom(#success_looking for, trials, proabalitiy of success) # equal to first number
+pbinom(#success_looking for, trials, proabalitiy of success) # less than or equal to first number
+pbinom(#success_looking for, trials, proabalitiy of success, lower.tail = FALSE) # greater than or equal to first number
+
+binom expected value = trials * probability of success
+
+#normal dist
+pnorm(P#, mean = , sd = ) # gives the % under p#
+pnorm(P#, mean = , sd = , lower.tail = FALSE) # gives the % over p#
+pnorm(P#, mean = , sd = ) - pnorm(P#, mean = , sd = ) # give percentage between pnorms
+qnorm(%#, mean=, sd = ) # returns what number %# are under.  so what is the value %# are under(EG 90%)
+qnorm(%#, mean=, sd = , lower.tail = FALSE) # returns what number %# are over.
+rnorm(sample_size, mean=, sd=) #generate random normal dist numbers
+
+dpois(#, lambda = ##) the probability of # given the mean of ## (exact)
+ppois(#, lambda = ##) the proabability of # or fewer given the mean ##
+ppois(#, lambda = ##, lower.tail=FALSE) the proabability of # or greater given the mean ##
+rpois(#,lambda=##)
+
+rate = 1/avgtime
+exponential expected = 1/lambda
+pexp(#,rate=##) probability of # with a mean/lambda ##
+pexp(#,rate=##,lower.tail=FALSE) probability of # or greater with a mean/lambda ##
+pexp(#,rate=##) - pexp(#,rate=##) probability of waiting between # and # with a mean/lmbda of ## (lambda same, # is different)
+
+pt(t_stat, df = , lower.tail=FALSE)
+
+t.test(DF$col, alternative = "two.sided","less","greater", mu = 0 (by default))
+t.test(DF$col, DF$col2, alternative = "two.sided","less","greater", mu = 0, paired= TRUE)
+pairwise.t.test(DF$col. DF$col, p.adjust.method="None"/"Bonferroni") #p.adjust.methods to see types
+lm(col ~ col2, data=DF) # linear regression
+anova(output of lm)
+
+coord_flip() # flips xy axis on graphs
+###
+###
+z scores
+
+# From previous step
+p_0 <- 0.06
+p_hat <- late_shipments %>%
+  summarize(prop_late = mean(late == "Yes")) %>%
+  pull(prop_late)
+n <- nrow(late_shipments)
+numerator <- p_hat - p_0
+denominator <- sqrt(p_0 * (1 - p_0) / n)
+z_score <- numerator / denominator
+
+# Calculate the p-value from the z-score
+p_value <- pnorm(z_score,lower.tail=FALSE)
+
+# See the result
+p_value
+
+####################################################
+
+library(infer)
+DF%>%
+chisq_test(col1 ~ col2)
+
+
+null_distn <- DF%>%
+specify(y(response ~ explanatory, success="Yes")%>% ##similar as select from dpylr
+hypothesise(null = "independence"/"point")%>%
+generate(reps = 5000, [for independence] type= "permute" [for point] type="bootsrap"/"simulate")%>%
+calculate(stat = "diff in props", order = c("value1",value2") # diff in means for non-para
+viualize(null_distn)
+
+obs_stat<- DF%>%
+specify(response ~ explanatory, success="Yes")%>% ##similar as select from dpylr
+calculate(calculate(stat = "diff in props", order = c("value1",value2"))
+
+get_p_value(null_distn, obs_stat, direction="two sided")
+
+
+####################################################
+
+ggplot()+
+geom_bar()+
+coord_polar() # to make a pie chart
+
+###
+###
+
+
+
+glimpse(dataframe)
+
+new dataframe <- dataframe%>%
+
+select(cat1,cat2,cat3:cat4)%>%
+select(contains("word"), starts_with("word"), ends_with("word"), last_col)%>%
+select(-cat)%>% #removes cat
+select(new_cat = old_cat)%>% #requires all keep columns to be listed
+rename(new_cat = old_cat)%>%
+filter(cat == value)%>%
+filter(is.na(col))%>%
+filter(col %in% c("value1", "value2"))
+arrange(desc(cat))%>%
+mutate(newcat = value*value)%>%
+mutate(tolower(cat))
+transmute(cat1, cat2, new_cat = cat3/cat4) %>% like doing select and mutate at the same time
+count(cat, sort = True or false, wt = cat)%>%
+
+
+
+nrow(col) #number of rows in a column
+var() - variance
+sd() - standard deviation
+quantile(data, probs = c(0,0.2,0.4, etc)
+seq(from, to by)
+quantile(data, probs = seq(0,1,0.2))
+IQR() - interquartile range
+# Calculate the lower and upper cutoffs for outliers
+lower <- q1 - 1.5 * iqr
+upper <- q3 + 1.5 * iqr
+max()
+min()
+
+factor(DF$col, levels = c("lvl1","lvl2","lvl3"))
+
+log() - gives the natural log of the data, good for right skew data vis
+
+group_by(cat)%>%
+top_n(no.obvs, cat)%>%
+
+summarize(newvar = mean(), median(), min(), max())
+
+ungroup()
+
+cor(DF$col, DF2$col2, use="pairwise.complete.obs") #removes NAs when doing cor
+
+#Bootstrapping
+boot <-replicate(n=5000,expr = {
+   DF %>%
+   slice_sample(prop=1, replace=TRUE)%>%
+   summarize(mean_comp = mean(converted_comp))%>%
+   pull(mean_comp)
+}
+)
+
+std_error = sd(distribution) # apparently
+summarise(lower(col, 0.025),upper(col,0.975)) # tail numbers for Hyp testing
+
+ggplot(data, aes(x=,y=, color=, size=))+					if data is inside %>% start with aes()
+ geom_point(alpha=1, aes(size, color, etc))+ 
+	geom_smooth(method="lm",se=FALSE) # adds line of best fit, lm means linear model trend line, se FALSE means no error margins on the line
+ geom_line(group=cat)+
+ geom_col()+
+ geom_bar(position="fill")+ - gives a proportional bar chart filling to 1
+ geom_histogram(binwidth=int, position="dodge/fill/identity")+ # can use ..density.. as part of ggplot to give line of best fit
+ geom_boxplot()+
+ geom_dotplot() - 
+ geom_density() -histogram but line 
+ geom_segment(xend, yend)+
+ geom_text()+
+ geom_jitter()+
+ geom_errorbar(data,ymin/ymax = avg +- stddev)+
+ geom-curve()+
+ scale_x_log10()+
+ labs(x="x label",y="y label")
+ scale_fill_manual
+ylim(low,high) -- lowest number, highest number for y
+ expand_limits(y=0)+
+ ggtitle("some title")
+ facet_wrap=(~cat)
+ facet_grid(cat1,cat2, labeller = label_both)
+
+theme(attri.
+theme(legend.position=c(x=0.6,y=0.1)
+ theme(legend.position="None","top","bottom")
+ theme(plot.margin = margin(TRBL,units))
